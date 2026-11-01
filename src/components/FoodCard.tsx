@@ -10,6 +10,8 @@ interface FoodCardProps {
   onAddToCart?: (dish: FoodItem) => void;
   className?: string;
   compactOnMobile?: boolean;
+  textSizeBoost?: boolean;
+  compact?: boolean;
 }
 
 export const FoodCard: React.FC<FoodCardProps> = ({
@@ -19,6 +21,8 @@ export const FoodCard: React.FC<FoodCardProps> = ({
   onOpenDetails,
   className = '',
   compactOnMobile = false,
+  textSizeBoost = false,
+  compact = false,
 }) => {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -36,7 +40,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     <div
       onClick={() => onOpenDetails(dish)}
       className={`group relative bg-[#0d0d0f] border border-white/10 ${
-        compactOnMobile ? 'rounded-[16px] sm:rounded-[24px]' : 'rounded-[24px]'
+        compact ? 'rounded-[18px]' : compactOnMobile ? 'rounded-[16px] sm:rounded-[24px]' : 'rounded-[24px]'
       } overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_44px_rgba(0,0,0,0.7)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between cursor-pointer ${className}`}
     >
       {/* Top Image Container */}
@@ -53,13 +57,13 @@ export const FoodCard: React.FC<FoodCardProps> = ({
         {/* Top-left subtle watermark emblem */}
         <div
           className={`absolute ${
-            compactOnMobile ? 'top-2 left-2 sm:top-3 sm:left-3' : 'top-3 left-3'
+            compact || compactOnMobile ? 'top-2 left-2' : 'top-3 left-3'
           } z-10 pointer-events-none opacity-40`}
         >
           <svg
-            width={compactOnMobile ? '18' : '22'}
-            height={compactOnMobile ? '18' : '22'}
-            className={compactOnMobile ? 'sm:w-[22px] sm:h-[22px]' : ''}
+            width={compact || compactOnMobile ? '16' : '22'}
+            height={compact || compactOnMobile ? '16' : '22'}
+            className={!compact && compactOnMobile ? 'sm:w-[22px] sm:h-[22px]' : ''}
             viewBox="0 0 24 24"
             fill="none"
             stroke="#ebb340"
@@ -74,14 +78,14 @@ export const FoodCard: React.FC<FoodCardProps> = ({
           onClick={handleFavoriteClick}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           className={`absolute ${
-            compactOnMobile
-              ? 'top-2 right-2 w-7 h-7 sm:top-3 sm:right-3 sm:w-8 sm:h-8'
+            compact || compactOnMobile
+              ? 'top-2 right-2 w-7 h-7'
               : 'top-3 right-3 w-8 h-8'
           } z-10 rounded-full flex items-center justify-center transition-transform active:scale-90 hover:scale-110 cursor-pointer`}
         >
           <Heart
             className={`${
-              compactOnMobile ? 'w-4 h-4 sm:w-5 sm:h-5' : 'w-5 h-5'
+              compact || compactOnMobile ? 'w-4 h-4' : 'w-5 h-5'
             } drop-shadow-md transition-colors ${
               isFavorite
                 ? 'fill-rose-500 text-rose-500'
@@ -94,14 +98,24 @@ export const FoodCard: React.FC<FoodCardProps> = ({
       {/* Card Content Body */}
       <div
         className={`${
-          compactOnMobile ? 'p-2.5 pt-2 sm:p-4 sm:pt-3' : 'p-4 pt-3'
+          compact
+            ? 'p-3 pt-2'
+            : compactOnMobile
+            ? 'p-2.5 pt-2 sm:p-4 sm:pt-3'
+            : textSizeBoost
+            ? 'p-4 sm:p-5 pt-3 sm:pt-4'
+            : 'p-4 pt-3'
         } flex-1 flex flex-col justify-between`}
       >
         <div>
           {/* Food Name in Elegant White Serif Typography */}
           <h3
             className={`font-serif font-semibold text-white ${
-              compactOnMobile
+              compact
+                ? 'text-sm sm:text-[15px]'
+                : textSizeBoost
+                ? 'text-lg sm:text-[21px]'
+                : compactOnMobile
                 ? 'text-xs min-[360px]:text-sm sm:text-lg'
                 : 'text-base sm:text-lg'
             } tracking-normal leading-snug line-clamp-1 group-hover:text-[#f2ce9d] transition-colors`}
@@ -112,7 +126,11 @@ export const FoodCard: React.FC<FoodCardProps> = ({
           {/* Short Food Description */}
           <p
             className={`text-[#a1a1aa] ${
-              compactOnMobile
+              compact
+                ? 'text-[11px] sm:text-xs line-clamp-2 min-h-[28px] mt-0.5'
+                : textSizeBoost
+                ? 'text-[13px] sm:text-[14.5px] line-clamp-2 min-h-[38px] mt-1'
+                : compactOnMobile
                 ? 'text-[10px] min-[360px]:text-[11px] sm:text-[13px] line-clamp-2 min-h-[26px] sm:min-h-[34px] mt-0.5 sm:mt-1'
                 : 'text-xs sm:text-[13px] line-clamp-2 min-h-[34px] mt-1'
             } leading-relaxed font-sans`}
@@ -124,13 +142,23 @@ export const FoodCard: React.FC<FoodCardProps> = ({
         {/* Bottom Row: Price & Pill Button "View →" */}
         <div
           className={`flex items-center justify-between ${
-            compactOnMobile ? 'mt-2 sm:mt-3.5 pt-0.5 sm:pt-1' : 'mt-3.5 pt-1'
+            compact
+              ? 'mt-2.5 pt-1'
+              : compactOnMobile
+              ? 'mt-2 sm:mt-3.5 pt-0.5 sm:pt-1'
+              : textSizeBoost
+              ? 'mt-4 pt-1.5'
+              : 'mt-3.5 pt-1'
           }`}
         >
           {/* Price in Golden Yellow Serif */}
           <div
             className={`text-[#e5be82] font-serif font-bold ${
-              compactOnMobile
+              compact
+                ? 'text-base sm:text-lg'
+                : textSizeBoost
+                ? 'text-xl sm:text-2xl'
+                : compactOnMobile
                 ? 'text-sm min-[360px]:text-base sm:text-xl'
                 : 'text-lg sm:text-xl'
             } tracking-tight`}
@@ -143,7 +171,11 @@ export const FoodCard: React.FC<FoodCardProps> = ({
             onClick={handleViewClick}
             aria-label={`View details for ${dish.name}`}
             className={`border border-[#c49a5b]/80 bg-[#181512] text-[#e5be82] hover:bg-[#e5be82] hover:text-black font-sans ${
-              compactOnMobile
+              compact
+                ? 'text-[11px] px-3 py-1 gap-1'
+                : textSizeBoost
+                ? 'text-[13px] sm:text-sm px-4.5 sm:px-5 py-2 gap-1.5'
+                : compactOnMobile
                 ? 'text-[10px] sm:text-xs px-2.5 py-1 sm:px-4 sm:py-1.5 gap-1 sm:gap-1.5'
                 : 'text-xs px-4 py-1.5 gap-1.5'
             } rounded-full flex items-center font-medium transition-all shadow-xs active:scale-95 cursor-pointer`}
@@ -151,7 +183,13 @@ export const FoodCard: React.FC<FoodCardProps> = ({
             <span>View</span>
             <ArrowRight
               className={`${
-                compactOnMobile ? 'w-3 h-3 sm:w-3.5 sm:h-3.5' : 'w-3.5 h-3.5'
+                compact
+                  ? 'w-3 h-3'
+                  : textSizeBoost
+                  ? 'w-4 h-4'
+                  : compactOnMobile
+                  ? 'w-3 h-3 sm:w-3.5 sm:h-3.5'
+                  : 'w-3.5 h-3.5'
               } stroke-[2.5]`}
             />
           </button>
