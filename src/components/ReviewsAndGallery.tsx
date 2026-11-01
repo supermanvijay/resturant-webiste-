@@ -34,11 +34,11 @@ export const ReviewsAndGallery: React.FC<ReviewsAndGalleryProps> = ({
             {/* Header */}
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-3 mb-1">
-                <span className="h-[1px] w-10 sm:w-16 bg-[#ebb340]" />
-                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1b2b23]">
+                <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1b2b23] whitespace-nowrap">
                   Customer Reviews
                 </h3>
-                <span className="h-[1px] w-10 sm:w-16 bg-[#ebb340]" />
+                <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
               </div>
               <p className="text-xs text-gray-600 font-normal">
                 What our customers say
@@ -127,30 +127,36 @@ export const ReviewsAndGallery: React.FC<ReviewsAndGalleryProps> = ({
             {/* Header */}
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-3 mb-1">
-                <span className="h-[1px] w-10 sm:w-16 bg-[#ebb340]" />
-                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1b2b23]">
+                <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1b2b23] whitespace-nowrap">
                   Our Gallery
                 </h3>
-                <span className="h-[1px] w-10 sm:w-16 bg-[#ebb340]" />
+                <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
               </div>
               <p className="text-xs text-gray-600 font-normal">
                 A glimpse of our restaurant
               </p>
             </div>
 
-            {/* 4 Gallery Photos Row */}
-            <div className="grid grid-cols-4 gap-2.5 mb-6">
+            {/* 4 Gallery Photos in 2 rows x 2 cols (larger image display) */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
               {gallery.slice(0, 4).map((photo) => (
                 <div
                   key={photo.id}
                   onClick={() => onPhotoClick(photo)}
-                  className="aspect-[4/3] rounded-xl overflow-hidden bg-gray-200 border border-[#e5decb] shadow-xs hover:shadow-md cursor-pointer group transition-all duration-300"
+                  className="aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden bg-[#161618] border border-[#e5decb] shadow-xs hover:shadow-lg cursor-pointer group transition-all duration-300 relative"
                 >
                   <img
                     src={photo.image}
                     alt={photo.title}
-                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-500 filter brightness-95 group-hover:brightness-105"
                   />
+                  {/* Subtle dark gradient overlay with photo title on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5 sm:p-3.5">
+                    <p className="text-white text-xs sm:text-sm font-serif font-medium truncate drop-shadow-sm">
+                      {photo.title}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -159,7 +165,7 @@ export const ReviewsAndGallery: React.FC<ReviewsAndGalleryProps> = ({
             <div className="flex justify-center">
               <button
                 onClick={onViewMoreGallery}
-                className="inline-flex items-center gap-2 bg-[#0d4f32] hover:bg-[#083823] text-white text-xs font-semibold px-6 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 bg-[#0d4f32] hover:bg-[#083823] text-white text-xs font-semibold px-6 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95"
               >
                 <span>View More</span>
                 <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
