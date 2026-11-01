@@ -1,0 +1,6 @@
+{
+  "name": "Royal Bites Restaurant",
+  "description": "Experience the Taste of Perfection. Royal Bites Restaurant offering authentic Indian & Mughlai cuisine, online food ordering, and table reservations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
