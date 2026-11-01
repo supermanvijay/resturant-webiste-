@@ -166,28 +166,40 @@ export const Footer: React.FC<FooterProps> = ({
                 Home
               </button>
               <button
-                onClick={() => onNavigate('about')}
+                onClick={() => onNavigate('featured')}
                 className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
               >
-                About
-              </button>
-              <button
-                onClick={() => onNavigate('menu')}
-                className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
-              >
-                Menu
+                Featured Dishes
               </button>
               <button
                 onClick={() => onNavigate('gallery')}
                 className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
               >
-                Gallery
+                Our Gallery
+              </button>
+              <button
+                onClick={() => onNavigate('about')}
+                className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
+              >
+                About Us
+              </button>
+              <button
+                onClick={() => onNavigate('menu')}
+                className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
+              >
+                Our Menu
+              </button>
+              <button
+                onClick={() => onNavigate('reviews')}
+                className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
+              >
+                Customer Reviews
               </button>
               <button
                 onClick={() => onNavigate('contact')}
                 className="text-left text-[#b8c9c0] hover:text-[#ebb340] transition cursor-pointer"
               >
-                Contact
+                Visit &amp; Contact
               </button>
             </div>
           </div>

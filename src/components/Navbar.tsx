@@ -21,16 +21,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { name: 'Home', id: 'home' },
+    { name: 'Dishes', id: 'featured' },
+    { name: 'Gallery', id: 'gallery' },
     { name: 'About', id: 'about' },
     { name: 'Menu', id: 'menu' },
-    { name: 'Gallery', id: 'gallery' },
-    { name: 'Reservations', id: 'reservations' },
+    { name: 'Reviews', id: 'reviews' },
     { name: 'Contact', id: 'contact' },
   ];
 
   const handleLinkClick = (id: string) => {
-    onNavigate(id);
     setMobileMenuOpen(false);
+    // Give mobile menu a tiny frame to close before scroll coordinate calculation
+    setTimeout(() => {
+      onNavigate(id);
+    }, 15);
   };
 
   return (
@@ -42,14 +46,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center space-x-7 lg:space-x-8">
+        <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-7">
           {navLinks.map((link) => {
             const isActive = activeTab === link.id;
             return (
               <button
                 key={link.id}
                 onClick={() => handleLinkClick(link.id)}
-                className={`text-sm font-medium transition-all duration-200 cursor-pointer relative py-2 ${
+                className={`text-xs lg:text-sm font-medium transition-all duration-200 cursor-pointer relative py-2 ${
                   isActive
                     ? 'text-[#ebb340] font-semibold'
                     : 'text-[#e5ece8] hover:text-[#ebb340]'

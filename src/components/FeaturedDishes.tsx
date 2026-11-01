@@ -45,10 +45,10 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  // Card dimensions: ~30% smaller than original
+  // Card dimensions: increased by 10%
   const isMobile = containerWidth < 640;
-  const cardWidth = isMobile ? 215 : 240;
-  const gap = isMobile ? 12 : 16;
+  const cardWidth = isMobile ? 238 : 265;
+  const gap = isMobile ? 14 : 18;
 
   // Navigation handlers
   const handlePrev = () => {
@@ -142,23 +142,23 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
   return (
     <section className="bg-[#faf8f3] py-14 border-b border-[#ebdcc4]/60 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center mb-8 sm:mb-10 px-2">
-          <div className="flex items-center justify-center gap-2 sm:gap-4 mb-1.5 max-w-full">
-            <span className="h-[1px] w-5 sm:w-16 md:w-20 bg-[#ebb340] shrink-0" />
-            <h2 className="text-base min-[360px]:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#1b2b23] whitespace-nowrap tracking-tight sm:tracking-normal">
+        {/* Section Header with 20% larger heading */}
+        <div className="text-center mb-8 sm:mb-12 px-2">
+          <div className="flex items-center justify-center gap-3 sm:gap-5 mb-2 max-w-full">
+            <span className="h-[1.5px] w-8 sm:w-20 md:w-28 bg-[#ebb340] shrink-0" />
+            <h2 className="text-xl min-[360px]:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#1b2b23] whitespace-nowrap tracking-tight sm:tracking-normal">
               Our <span className="text-[#0e5836]">Featured Dishes</span>
             </h2>
-            <span className="h-[1px] w-5 sm:w-16 md:w-20 bg-[#ebb340] shrink-0" />
+            <span className="h-[1.5px] w-8 sm:w-20 md:w-28 bg-[#ebb340] shrink-0" />
           </div>
           {/* Subtitle with & symbol */}
-          <p className="text-xs sm:text-sm text-gray-600 font-normal">
+          <p className="text-sm sm:text-base text-gray-600 font-normal">
             A perfect blend of tradition &amp; taste
           </p>
         </div>
       </div>
 
-      {/* Full-width Carousel Attached to the Left and Right Corners */}
+      {/* Full-width Carousel Attached to Corners without white covers */}
       <div className="relative w-full overflow-hidden py-3">
         {/* Left Arrow Button Attached to the Left Corner */}
         <button
@@ -169,10 +169,7 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
           <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
         </button>
 
-        {/* Left Corner Subtle Soft Vignette */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-r from-[#faf8f3] via-[#faf8f3]/80 to-transparent pointer-events-none z-20" />
-
-        {/* Carousel Track Container (Attached to Corners) */}
+        {/* Carousel Track Container (Attached to Corners, White Covers Removed) */}
         <div
           ref={containerRef}
           className="w-full overflow-hidden select-none cursor-grab active:cursor-grabbing py-3"
@@ -206,7 +203,7 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
                   className={`flex-shrink-0 transition-all duration-300 select-none ${
                     isActive
                       ? 'transform scale-100 opacity-100 z-10 shadow-[0_16px_36px_rgba(0,0,0,0.65)] ring-1 ring-[#ebb340]/40 rounded-[18px]'
-                      : 'transform scale-[0.88] opacity-50 hover:opacity-80 cursor-pointer filter brightness-90'
+                      : 'transform scale-[0.92] opacity-80 hover:opacity-100 cursor-pointer'
                   }`}
                 >
                   <FoodCard
@@ -223,9 +220,6 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
           </div>
         </div>
 
-        {/* Right Corner Subtle Soft Vignette */}
-        <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-l from-[#faf8f3] via-[#faf8f3]/80 to-transparent pointer-events-none z-20" />
-
         {/* Right Arrow Button Attached to the Right Corner */}
         <button
           onClick={handleNext}
@@ -236,30 +230,23 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
         </button>
       </div>
 
-      {/* Pagination Dots & Dish Status Counter */}
-      <div className="flex flex-col items-center justify-center gap-2 mt-4 max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-          {activeDishes.map((d, idx) => {
-            const isDotActive = (displayIndex % count) === idx;
-            return (
-              <button
-                key={d.id}
-                onClick={() => setDisplayIndex(count + idx)}
-                aria-label={`View ${d.name}`}
-                className={`rounded-full transition-all cursor-pointer ${
-                  isDotActive
-                    ? 'w-6 h-2 bg-[#0e5836]'
-                    : 'w-2 h-2 bg-[#ebdcc4] hover:bg-[#ebb340]'
-                }`}
-              />
-            );
-          })}
-        </div>
-        <p className="text-[11px] sm:text-xs text-gray-500 font-medium">
-          Dish <span className="font-bold text-[#0e5836]">{(displayIndex % count) + 1}</span> of {count}
-          <span className="mx-1.5 text-gray-300">•</span>
-          <span className="text-[#0e5836] font-semibold">{currentDish?.name}</span>
-        </p>
+      {/* Pagination Dots (Dishes count and dish names removed as requested) */}
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 max-w-7xl mx-auto px-4">
+        {activeDishes.map((d, idx) => {
+          const isDotActive = (displayIndex % count) === idx;
+          return (
+            <button
+              key={d.id}
+              onClick={() => setDisplayIndex(count + idx)}
+              aria-label={`View ${d.name}`}
+              className={`rounded-full transition-all cursor-pointer ${
+                isDotActive
+                  ? 'w-6 h-2 bg-[#0e5836]'
+                  : 'w-2 h-2 bg-[#ebdcc4] hover:bg-[#ebb340]'
+              }`}
+            />
+          );
+        })}
       </div>
     </section>
   );

@@ -108,24 +108,24 @@ export const Hero: React.FC<HeroProps> = ({ onExploreMenu, onBookTable }) => {
               {current.description}
             </p>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-1 sm:pt-2">
-              {/* Explore Menu Button */}
-              <button
-                onClick={onExploreMenu}
-                className="inline-flex items-center gap-2 bg-[#ebb340] hover:bg-[#dfa732] active:scale-95 text-[#111111] font-semibold text-sm px-6 py-2.5 rounded-full shadow-lg transition-all duration-200 cursor-pointer"
-              >
-                <span>Explore Menu</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-              </button>
-
+            {/* Action Buttons - Always in one line across mobile and desktop */}
+            <div className="flex flex-row items-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 flex-nowrap">
               {/* Book a Table Button */}
               <button
                 onClick={onBookTable}
-                className="inline-flex items-center gap-2 border border-[#ebb340] hover:bg-[#ebb340]/15 active:scale-95 text-white font-medium text-sm px-6 py-2.5 rounded-full transition-all duration-200 cursor-pointer backdrop-blur-xs"
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-[#ebb340] hover:bg-[#dfa732] active:scale-95 text-[#111111] font-semibold text-xs sm:text-sm px-4 sm:px-6 py-2.5 rounded-full shadow-lg transition-all duration-200 cursor-pointer whitespace-nowrap flex-shrink-0"
               >
-                <Calendar className="w-4 h-4 text-[#ebb340]" />
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#111111]" />
                 <span>Book a Table</span>
+              </button>
+
+              {/* Explore Menu Button */}
+              <button
+                onClick={onExploreMenu}
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 border border-[#ebb340] hover:bg-[#ebb340]/15 active:scale-95 text-white font-medium text-xs sm:text-sm px-4 sm:px-6 py-2.5 rounded-full transition-all duration-200 cursor-pointer backdrop-blur-xs whitespace-nowrap flex-shrink-0"
+              >
+                <span>Explore Menu</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ebb340] stroke-[2.5]" />
               </button>
             </div>
           </div>

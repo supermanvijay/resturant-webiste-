@@ -9,7 +9,9 @@ import { Hero } from './components/Hero';
 import { FeaturedDishes } from './components/FeaturedDishes';
 import { AboutSection } from './components/AboutSection';
 import { MenuAndOffer } from './components/MenuAndOffer';
-import { ReviewsAndGallery } from './components/ReviewsAndGallery';
+import { OurGallerySection } from './components/OurGallerySection';
+import { CustomerReviewsSection } from './components/CustomerReviewsSection';
+import { VisitUs } from './components/VisitUs';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -95,29 +97,83 @@ export default function App() {
     setSelectedDishForDetails(dish);
   };
 
+  // Precise scroll-to-start helper that aligns section top right below sticky header
+  const scrollToElementStart = (id: string): boolean => {
+    const el = document.getElementById(id);
+    if (!el) return false;
+
+    // Sticky navbar height (default 80px)
+    const header = document.querySelector('header');
+    const headerHeight = header ? header.getBoundingClientRect().height : 80;
+
+    const elementPosition = el.getBoundingClientRect().top + window.pageYOffset;
+    // Exactly at start of section beneath navbar
+    const offsetPosition = Math.max(0, Math.round(elementPosition - headerHeight));
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth',
+    });
+    return true;
+  };
+
+  // Keep activeTab in sync with current viewport section when scrolling
+  useEffect(() => {
+    const sections = [
+      { id: 'home-section', tab: 'home' },
+      { id: 'featured-dishes-section', tab: 'featured' },
+      { id: 'gallery-section', tab: 'gallery' },
+      { id: 'about-section', tab: 'about' },
+      { id: 'menu-section', tab: 'menu' },
+      { id: 'reviews-section', tab: 'reviews' },
+      { id: 'contact-section', tab: 'contact' },
+    ];
+
+    const handleScroll = () => {
+      const header = document.querySelector('header');
+      const headerHeight = header ? header.getBoundingClientRect().height : 80;
+      const scrollPosition = window.pageYOffset + headerHeight + 80;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const item = sections[i];
+        const el = document.getElementById(item.id);
+        if (el) {
+          const top = el.offsetTop;
+          if (scrollPosition >= top) {
+            setActiveTab(item.tab);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Navigation router / handler
   const handleNavigate = (sectionId: string) => {
     setActiveTab(sectionId);
     if (sectionId === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (sectionId === 'featured' || sectionId === 'dishes' || sectionId === 'featured-dishes') {
+      scrollToElementStart('featured-dishes-section');
     } else if (sectionId === 'about') {
-      const el = document.getElementById('about-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-      else setAboutOpen(true);
+      const scrolled = scrollToElementStart('about-section');
+      if (!scrolled) setAboutOpen(true);
     } else if (sectionId === 'menu') {
-      const el = document.getElementById('menu-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-      else setFullMenuOpen(true);
+      const scrolled = scrollToElementStart('menu-section');
+      if (!scrolled) setFullMenuOpen(true);
     } else if (sectionId === 'gallery') {
-      const el = document.getElementById('gallery-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-      else setGalleryOpen(true);
-    } else if (sectionId === 'reservations') {
+      const scrolled = scrollToElementStart('gallery-section');
+      if (!scrolled) setGalleryOpen(true);
+    } else if (sectionId === 'reservations' || sectionId === 'reservation') {
       setReservationOpen(true);
-    } else if (sectionId === 'contact') {
-      const el = document.getElementById('footer-contact');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-      else setContactOpen(true);
+    } else if (sectionId === 'reviews' || sectionId === 'review') {
+      scrollToElementStart('reviews-section');
+    } else if (sectionId === 'contact' || sectionId === 'location') {
+      const scrolled = scrollToElementStart('contact-section') || scrollToElementStart('footer-contact');
+      if (!scrolled) setContactOpen(true);
     }
   };
 
@@ -133,16 +189,19 @@ export default function App() {
       />
 
       <main className="flex-1">
-        {/* 2. Hero Section */}
-        <section id="home-section">
+        {/* Hero Section */}
+        <section id="home-section" className="scroll-mt-20">
           <Hero
-            onExploreMenu={() => setFullMenuOpen(true)}
+            onExploreMenu={() => {
+              const scrolled = scrollToElementStart('menu-section');
+              if (!scrolled) setFullMenuOpen(true);
+            }}
             onBookTable={() => setReservationOpen(true)}
           />
         </section>
 
-        {/* 3. Featured Dishes Section with new Premium Food Cards */}
-        <section id="featured-dishes-section">
+        {/* 1. Our Featured Dishes */}
+        <section id="featured-dishes-section" className="scroll-mt-20 sm:scroll-mt-24">
           <FeaturedDishes
             dishes={dishes}
             favorites={favorites}
@@ -152,13 +211,26 @@ export default function App() {
           />
         </section>
 
-        {/* 4. About Us Section */}
-        <section id="about-section">
+        {/* 2. Our Gallery */}
+        <OurGallerySection
+          gallery={INITIAL_GALLERY}
+          onViewMoreGallery={() => {
+            setSelectedPhoto(null);
+            setGalleryOpen(true);
+          }}
+          onPhotoClick={(photo) => {
+            setSelectedPhoto(photo);
+            setGalleryOpen(true);
+          }}
+        />
+
+        {/* 3. About Section */}
+        <section id="about-section" className="scroll-mt-20 sm:scroll-mt-24">
           <AboutSection onLearnMore={() => setAboutOpen(true)} />
         </section>
 
-        {/* 5. Menu & Special Offer Section with new Premium Food Cards */}
-        <section id="menu-section">
+        {/* 4. Our Menu & Offers */}
+        <section id="menu-section" className="scroll-mt-20 sm:scroll-mt-24">
           <MenuAndOffer
             dishes={dishes}
             favorites={favorites}
@@ -173,21 +245,11 @@ export default function App() {
           />
         </section>
 
-        {/* 6. Customer Reviews & Gallery Section */}
-        <section id="gallery-section">
-          <ReviewsAndGallery
-            reviews={INITIAL_REVIEWS}
-            gallery={INITIAL_GALLERY}
-            onViewMoreGallery={() => {
-              setSelectedPhoto(null);
-              setGalleryOpen(true);
-            }}
-            onPhotoClick={(photo) => {
-              setSelectedPhoto(photo);
-              setGalleryOpen(true);
-            }}
-          />
-        </section>
+        {/* 5. Customer Reviews */}
+        <CustomerReviewsSection reviews={INITIAL_REVIEWS} />
+
+        {/* 6. Contact / Visit Us */}
+        <VisitUs onOpenContact={() => setContactOpen(true)} />
       </main>
 
       {/* 7. Footer Section */}
