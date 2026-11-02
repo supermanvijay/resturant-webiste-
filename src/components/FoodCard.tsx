@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, ArrowRight } from 'lucide-react';
+import { Heart, ArrowRight, Star } from 'lucide-react';
 import { FoodItem } from '../types';
 
 interface FoodCardProps {
@@ -54,24 +54,35 @@ export const FoodCard: React.FC<FoodCardProps> = ({
         {/* Smooth dark vignette fading to card body */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0f] via-[#0d0d0f]/20 to-transparent pointer-events-none" />
 
-        {/* Top-left subtle watermark emblem */}
-        <div
-          className={`absolute ${
-            compact || compactOnMobile ? 'top-2 left-2' : 'top-3 left-3'
-          } z-10 pointer-events-none opacity-40`}
-        >
-          <svg
-            width={compact || compactOnMobile ? '16' : '22'}
-            height={compact || compactOnMobile ? '16' : '22'}
-            className={!compact && compactOnMobile ? 'sm:w-[22px] sm:h-[22px]' : ''}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#ebb340"
-            strokeWidth="1.5"
+        {/* Top-left Rating Badge */}
+        {dish.rating ? (
+          <div
+            className={`absolute ${
+              compact || compactOnMobile ? 'top-2 left-2 px-2 py-0.5' : 'top-3 left-3 px-2.5 py-1'
+            } z-10 bg-black/65 backdrop-blur-xs border border-white/20 rounded-full flex items-center gap-1 shadow-sm text-white`}
           >
-            <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8L12 2Z" fill="#ebb340" fillOpacity="0.3" />
-          </svg>
-        </div>
+            <Star className="w-3 h-3 fill-[#ebb340] text-[#ebb340]" />
+            <span className="text-[11px] font-bold font-sans tracking-tight">{dish.rating.toFixed(1)}</span>
+          </div>
+        ) : (
+          <div
+            className={`absolute ${
+              compact || compactOnMobile ? 'top-2 left-2' : 'top-3 left-3'
+            } z-10 pointer-events-none opacity-40`}
+          >
+            <svg
+              width={compact || compactOnMobile ? '16' : '22'}
+              height={compact || compactOnMobile ? '16' : '22'}
+              className={!compact && compactOnMobile ? 'sm:w-[22px] sm:h-[22px]' : ''}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ebb340"
+              strokeWidth="1.5"
+            >
+              <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8L12 2Z" fill="#ebb340" fillOpacity="0.3" />
+            </svg>
+          </div>
+        )}
 
         {/* Top-right Heart / Favorite Icon */}
         <button
@@ -151,19 +162,22 @@ export const FoodCard: React.FC<FoodCardProps> = ({
               : 'mt-3.5 pt-1'
           }`}
         >
-          {/* Price in Golden Yellow Serif (+10% in compact) */}
-          <div
-            className={`text-[#e5be82] font-serif font-bold ${
-              compact
-                ? 'text-lg sm:text-xl'
-                : textSizeBoost
-                ? 'text-xl sm:text-2xl'
-                : compactOnMobile
-                ? 'text-sm min-[360px]:text-base sm:text-xl'
-                : 'text-lg sm:text-xl'
-            } tracking-tight`}
-          >
-            ₹{dish.price}
+          {/* Price with professional tabular numerals and currency hierarchy */}
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-xs sm:text-sm font-semibold text-[#ebb340]/85 font-sans">₹</span>
+            <span
+              className={`text-[#f5d59f] font-sans font-bold tabular-nums ${
+                compact
+                  ? 'text-lg sm:text-xl'
+                  : textSizeBoost
+                  ? 'text-xl sm:text-2xl'
+                  : compactOnMobile
+                  ? 'text-base sm:text-xl'
+                  : 'text-lg sm:text-xl'
+              } tracking-tight`}
+            >
+              {dish.price}
+            </span>
           </div>
 
           {/* Pill Button "View →" with golden outline (+10% in compact) */}

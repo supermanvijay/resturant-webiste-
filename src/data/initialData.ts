@@ -1,6 +1,46 @@
 import { FoodItem, Review, GalleryPhoto } from '../types';
 
 export const INITIAL_FOOD_ITEMS: FoodItem[] = [
+  // 3 App menu dishes requested
+  {
+    id: 'dish-gourmet-cheeseburger',
+    name: 'Gourmet Cheeseburger with Fries',
+    category: 'Main Course',
+    price: 349,
+    subtitle: 'Juicy Angus beef, aged cheddar & golden rosemary fries',
+    description: 'Seared prime Angus beef patty, melted aged cheddar, crisp lettuce, heirloom tomato, and house aioli on toasted brioche, served with crispy seasoned golden fries.',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1000&q=85',
+    isVeg: false,
+    isFeatured: true,
+    isPopular: true,
+    rating: 4.9,
+  },
+  {
+    id: 'dish-creamy-herb-pasta',
+    name: 'Creamy Herb Fettuccine',
+    category: 'Main Course',
+    price: 389,
+    subtitle: 'Velvety garlic cream, fresh herbs & parmesan',
+    description: 'Fresh artisanal fettuccine pasta swirled in velvety garlic cream reduction, infused with sweet basil, thyme, cracked peppercorn, and aged Parmigiano-Reggiano.',
+    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281081?auto=format&fit=crop&w=1000&q=85',
+    isVeg: true,
+    isFeatured: true,
+    isPopular: true,
+    rating: 5.0,
+  },
+  {
+    id: 'dish-roasted-vegetable-bowl',
+    name: 'Colorful Roasted Vegetable Bowl',
+    category: 'Main Course',
+    price: 299,
+    subtitle: 'Caramelized veggies, avocado & quinoa',
+    description: 'Caramelized sweet potatoes, roasted broccoli florets, creamy avocado, crisp radishes, and fluffy organic quinoa drizzled with citrus tahini.',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1000&q=85',
+    isVeg: true,
+    isFeatured: true,
+    isPopular: false,
+    rating: 4.9,
+  },
   // Signature dishes matching reference image & popular items
   {
     id: 'dish-thai-curry',

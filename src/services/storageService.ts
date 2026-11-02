@@ -1,7 +1,7 @@
 import { FoodItem, Order, Reservation, ContactMessage, CartItem } from '../types';
 import { INITIAL_FOOD_ITEMS } from '../data/initialData';
 
-const MENU_KEY = 'royal_bites_menu_items_v3';
+const MENU_KEY = 'royal_bites_menu_items_v4';
 const ORDERS_KEY = 'royal_bites_orders_v1';
 const RESERVATIONS_KEY = 'royal_bites_reservations_v1';
 const MESSAGES_KEY = 'royal_bites_messages_v1';
