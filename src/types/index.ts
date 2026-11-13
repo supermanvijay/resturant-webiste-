@@ -74,6 +74,43 @@ export interface GalleryPhoto {
   title: string;
   category: string;
   image: string;
+  caption?: string;
+  order?: number;
+}
+
+export interface FeaturedDish {
+  id: string;
+  title: string;
+  name?: string; // fallback alias for FoodItem compatibility
+  description: string;
+  price: number;
+  image: string;
+  category?: string;
+  badge?: string; // e.g. "Popular", "Chef's Pick", "Vegetarian", "Signature"
+  isVeg?: boolean;
+  isPopular?: boolean;
+  rating?: number;
+  order: number;
+  updatedAt?: string;
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  caption?: string;
+  order: number;
+  createdAt?: string;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'REORDER';
+  entity: 'Menu Item' | 'Featured Dish' | 'Gallery Image' | 'Settings';
+  targetTitle: string;
+  timestamp: string;
+  details?: string;
 }
 
 export interface ContactMessage {
@@ -85,3 +122,4 @@ export interface ContactMessage {
   message: string;
   createdAt: string;
 }
+

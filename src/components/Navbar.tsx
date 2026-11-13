@@ -8,6 +8,7 @@ interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
   onOpenOrderModal: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,7 +17,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   cartCount,
   onOpenCart,
   onOpenOrderModal,
+  onOpenAdmin,
 }) => {
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -84,6 +87,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </button>
 
+          {/* Admin Portal Button */}
+          {onOpenAdmin && (
+            <button
+              onClick={onOpenAdmin}
+              aria-label="Open Admin Panel"
+              className="p-2 text-[#ebb340]/80 hover:text-[#ebb340] hover:bg-[#0b281d] rounded-full transition cursor-pointer"
+              title="Admin Portal (Username: 123456789)"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 fill-none stroke-current stroke-[2]"
+              >
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </button>
+          )}
+
           {/* Golden Order Online Button */}
           <button
             onClick={onOpenOrderModal}
@@ -118,6 +139,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               {link.name}
             </button>
           ))}
+          {onOpenAdmin && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAdmin();
+              }}
+              className="block w-full text-left py-2 text-sm text-[#ebb340] font-medium transition flex items-center gap-2 border-t border-[#0f3426] pt-3"
+            >
+              <span>👑 Admin Management Console</span>
+            </button>
+          )}
           <div className="pt-2">
             <button
               onClick={() => {
@@ -131,6 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
         </div>
+
       )}
     </header>
   );

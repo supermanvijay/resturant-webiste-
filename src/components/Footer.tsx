@@ -20,6 +20,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({
   onNavigate,
+  onOpenAdmin,
   onShowToast,
 }) => {
   const [email, setEmail] = useState('');
@@ -237,7 +238,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
 
-        {/* Bottom Copyright Bar - ADMIN PORTAL REMOVED */}
+        {/* Bottom Copyright Bar */}
         <div className="pt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
           <p>© 2026 Royal Bites Restaurant. All Rights Reserved.</p>
           <div className="flex items-center gap-4">
@@ -254,6 +255,19 @@ export const Footer: React.FC<FooterProps> = ({
             >
               Terms & Conditions
             </button>
+            {onOpenAdmin && (
+              <>
+                <span>|</span>
+                <button
+                  onClick={onOpenAdmin}
+                  className="hover:text-[#ebb340] text-gray-400 transition cursor-pointer flex items-center gap-1 group font-medium"
+                  title="Admin Management Panel (Credentials: 123456789)"
+                >
+                  <span className="text-[10px] group-hover:scale-110 transition-transform">👑</span>
+                  <span className="group-hover:underline">Admin Portal</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -20,16 +20,18 @@ import { FullMenuModal } from './components/FullMenuModal';
 import { AboutModal } from './components/AboutModal';
 import { GalleryModal } from './components/GalleryModal';
 import { ContactModal } from './components/ContactModal';
-import { AdminDashboard } from './components/AdminDashboard';
+import { AdminPanel } from './components/admin/AdminPanel';
 import { DishDetailModal } from './components/DishDetailModal';
 import { NotificationToast } from './components/NotificationToast';
 import { storageService } from './services/storageService';
-import { INITIAL_REVIEWS, INITIAL_GALLERY } from './data/initialData';
-import { FoodItem, CartItem, GalleryPhoto } from './types';
+import { INITIAL_REVIEWS } from './data/initialData';
+import { FoodItem, CartItem, GalleryPhoto, FeaturedDish, GalleryItem } from './types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [dishes, setDishes] = useState<FoodItem[]>(() => storageService.getMenuItems());
+  const [featuredDishes, setFeaturedDishes] = useState<FeaturedDish[]>(() => storageService.getFeaturedDishes());
+  const [gallery, setGallery] = useState<GalleryItem[]>(() => storageService.getGalleryImages());
   const [cart, setCart] = useState<CartItem[]>(() => storageService.getCart());
   const [favorites, setFavorites] = useState<string[]>(() => storageService.getFavorites());
 
@@ -43,7 +45,7 @@ export default function App() {
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [selectedDishForDetails, setSelectedDishForDetails] = useState<FoodItem | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
-  const [adminOpen, setAdminOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState<boolean>(() => window.location.hash === '#admin');
 
   // Toast message
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -55,10 +57,12 @@ export default function App() {
     }, 3500);
   };
 
-  // Sync state when storage updates
+  // Sync state when database storage updates
   useEffect(() => {
     const handleStorageUpdate = () => {
       setDishes(storageService.getMenuItems());
+      setFeaturedDishes(storageService.getFeaturedDishes());
+      setGallery(storageService.getGalleryImages());
       setCart(storageService.getCart());
       setFavorites(storageService.getFavorites());
     };
@@ -66,6 +70,33 @@ export default function App() {
     window.addEventListener('royal_bites_db_update', handleStorageUpdate);
     return () => window.removeEventListener('royal_bites_db_update', handleStorageUpdate);
   }, []);
+
+  // Listen for hashchange to open Admin Panel via #admin
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setAdminOpen(true);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Compute live featured dishes formatted for FoodCard / FeaturedDishes carousel
+  const featuredFoodItems: FoodItem[] = featuredDishes.map((f) => ({
+    id: f.id,
+    name: f.title,
+    category: (f.category as any) || 'Main Course',
+    price: f.price,
+    subtitle: f.badge || f.description.slice(0, 45),
+    description: f.description,
+    image: f.image,
+    isVeg: !!f.isVeg,
+    isFeatured: true,
+    isPopular: f.badge === 'Popular' || !!f.isPopular,
+    rating: f.rating || 5.0,
+  }));
+
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -186,6 +217,10 @@ export default function App() {
         cartCount={totalCartCount}
         onOpenCart={() => setCartOpen(true)}
         onOpenOrderModal={() => setCheckoutOpen(true)}
+        onOpenAdmin={() => {
+          setAdminOpen(true);
+          window.location.hash = '#admin';
+        }}
       />
 
       <main className="flex-1">
@@ -200,10 +235,10 @@ export default function App() {
           />
         </section>
 
-        {/* 1. Our Featured Dishes */}
+        {/* 1. Our Featured Dishes (Connected to Live Database Table & Reordering) */}
         <section id="featured-dishes-section" className="scroll-mt-20 sm:scroll-mt-24">
           <FeaturedDishes
-            dishes={dishes}
+            dishes={featuredFoodItems}
             favorites={favorites}
             onToggleFavorite={handleToggleFavorite}
             onOpenDetails={handleOpenDetails}
@@ -211,9 +246,9 @@ export default function App() {
           />
         </section>
 
-        {/* 2. Our Gallery */}
+        {/* 2. Our Gallery (Connected to Live Media Database Table) */}
         <OurGallerySection
-          gallery={INITIAL_GALLERY}
+          gallery={gallery}
           onViewMoreGallery={() => {
             setSelectedPhoto(null);
             setGalleryOpen(true);
@@ -229,7 +264,7 @@ export default function App() {
           <AboutSection onLearnMore={() => setAboutOpen(true)} />
         </section>
 
-        {/* 4. Our Menu & Offers */}
+        {/* 4. Our Menu & Offers (Connected to Live Menu Database Table) */}
         <section id="menu-section" className="scroll-mt-20 sm:scroll-mt-24">
           <MenuAndOffer
             dishes={dishes}
@@ -256,7 +291,10 @@ export default function App() {
       <div id="footer-contact">
         <Footer
           onNavigate={handleNavigate}
-          onOpenAdmin={() => setAdminOpen(true)}
+          onOpenAdmin={() => {
+            setAdminOpen(true);
+            window.location.hash = '#admin';
+          }}
           onShowToast={showToast}
         />
       </div>
@@ -327,7 +365,7 @@ export default function App() {
           setGalleryOpen(false);
           setSelectedPhoto(null);
         }}
-        gallery={INITIAL_GALLERY}
+        gallery={gallery}
         selectedPhoto={selectedPhoto}
       />
 
@@ -337,11 +375,15 @@ export default function App() {
         onShowToast={showToast}
       />
 
-      <AdminDashboard
+      {/* Luxury Admin Panel (Protected, Session Authenticated, Credentials: 123456789 / 123456789) */}
+      <AdminPanel
         isOpen={adminOpen}
-        onClose={() => setAdminOpen(false)}
-        dishes={dishes}
-        onDishesUpdated={() => setDishes(storageService.getMenuItems())}
+        onClose={() => {
+          setAdminOpen(false);
+          if (window.location.hash === '#admin') {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }}
         onShowToast={showToast}
       />
 
