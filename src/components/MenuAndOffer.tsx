@@ -175,21 +175,20 @@ export const MenuAndOffer: React.FC<MenuAndOfferProps> = ({
           <div
             ref={scrollContainerRef}
             onScroll={handleMobileScroll}
-            className="flex md:grid md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-4 pt-2 px-5 sm:px-7 md:px-0 snap-x snap-mandatory scroll-smooth no-scrollbar items-stretch"
+            className="flex md:grid md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-4 pt-2 px-[calc(50%-min(41vw,160px))] sm:px-[calc(50%-175px)] md:px-0 snap-x snap-mandatory scroll-smooth no-scrollbar items-stretch"
           >
             {THREE_FEATURED_DISHES.map((card, idx) => {
               const foodItem = getFoodItem(card);
               const badgeMeta = getBadgeStyle(card.badge);
               const BadgeIcon = badgeMeta.icon;
               const isFav = favorites.includes(card.id);
-              const revealDirection = idx === 0 ? 'left' : idx === 2 ? 'right' : 'up';
 
               return (
                 <div
                   key={card.id}
                   className="w-[82vw] max-w-[320px] sm:w-[350px] flex-shrink-0 snap-center md:w-auto md:max-w-none md:flex-shrink flex"
                 >
-                  <Reveal direction={revealDirection} delay={idx * 100} className="w-full flex">
+                  <Reveal direction="up" delay={idx * 100} className="w-full flex">
                     <div className="w-full group bg-white rounded-2xl sm:rounded-3xl border border-[#ebe2d5] shadow-[0_8px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden">
                       {/* Large Realistic Food Photograph at the Top */}
                       <div

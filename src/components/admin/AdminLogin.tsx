@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowLeft, Sparkles, KeyRound } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowLeft, Sparkles } from 'lucide-react';
 import { adminAuthService } from '../../services/adminAuth';
 
 interface AdminLoginProps {
@@ -28,12 +28,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
         setError(res.error || 'Authentication failed. Please verify credentials.');
       }
     }, 400);
-  };
-
-  const fillDemoCredentials = () => {
-    setUsername('123456789');
-    setPassword('123456789');
-    setError(null);
   };
 
   return (
@@ -141,19 +135,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
               </div>
             </div>
 
-            {/* Quick Demo Credentials Helper */}
-            <div className="pt-1 flex items-center justify-between text-xs">
-              <span className="text-gray-400 text-[11px]">Demo: 123456789</span>
-              <button
-                type="button"
-                onClick={fillDemoCredentials}
-                className="inline-flex items-center gap-1 text-[11px] text-[#d4af37] hover:text-[#f5d59f] underline transition cursor-pointer"
-              >
-                <KeyRound className="w-3 h-3" />
-                <span>Fill Credentials</span>
-              </button>
-            </div>
-
             {/* Submit Button */}
             <div className="pt-2">
               <button
@@ -166,7 +147,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 text-black" />
-                    <span>Access Executive Dashboard</span>
+                    <span>Sign In to Admin Panel</span>
                   </>
                 )}
               </button>
@@ -176,7 +157,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
           {/* Security Badge */}
           <div className="mt-8 pt-5 border-t border-gray-800/80 flex items-center justify-center gap-2 text-[11px] text-gray-500">
             <ShieldCheck className="w-3.5 h-3.5 text-[#d4af37]" />
-            <span>Encrypted Session Authentication • Strict Role Validation</span>
+            <span>Authorized Personnel Only • Royal Bites</span>
           </div>
         </div>
       </div>

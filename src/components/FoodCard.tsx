@@ -12,6 +12,7 @@ interface FoodCardProps {
   compactOnMobile?: boolean;
   textSizeBoost?: boolean;
   compact?: boolean;
+  noShadow?: boolean;
 }
 
 export const FoodCard: React.FC<FoodCardProps> = ({
@@ -23,6 +24,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({
   compactOnMobile = false,
   textSizeBoost = false,
   compact = false,
+  noShadow = false,
 }) => {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,7 +43,11 @@ export const FoodCard: React.FC<FoodCardProps> = ({
       onClick={() => onOpenDetails(dish)}
       className={`group relative bg-[#0d0d0f] border border-white/10 ${
         compact ? 'rounded-[18px]' : compactOnMobile ? 'rounded-[16px] sm:rounded-[24px]' : 'rounded-[24px]'
-      } overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_44px_rgba(0,0,0,0.7)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between cursor-pointer ${className}`}
+      } overflow-hidden ${
+        noShadow
+          ? 'shadow-none'
+          : 'shadow-[0_12px_32px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_44px_rgba(0,0,0,0.7)]'
+      } hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between cursor-pointer ${className}`}
     >
       {/* Top Image Container */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#161618]">

@@ -23,47 +23,125 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
   const activeDishes = featured.length > 0 ? featured : dishes.slice(0, 5);
   const count = activeDishes.length;
 
-  // Tripled list for seamless infinite circular scrolling that reaches both corners
+  // Repeated list for seamless infinite circular scrolling without rewinding
+  const baseIndex = count > 1 ? count * 2 : 0;
+
   const displayDishes = useMemo(() => {
-    return [...activeDishes, ...activeDishes, ...activeDishes];
-  }, [activeDishes]);
+    if (count === 0) return [];
+    if (count === 1) return activeDishes;
+    return [
+      ...activeDishes,
+      ...activeDishes,
+      ...activeDishes,
+      ...activeDishes,
+      ...activeDishes,
+    ];
+  }, [activeDishes, count]);
 
   // Start in the center set
-  const [displayIndex, setDisplayIndex] = useState(count);
+  const [displayIndex, setDisplayIndex] = useState(baseIndex);
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState(false);
 
-  // Container width measurement
+  const trackRef = useRef<HTMLDivElement>(null);
+  const didDragRef = useRef(false);
+  const touchStartYRef = useRef(0);
+  const touchIntentRef = useRef<'horizontal' | 'vertical' | null>(null);
+
+  // Container width measurement (sync + ResizeObserver for exact mobile centering)
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(1000);
+  const [containerWidth, setContainerWidth] = useState<number>(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 390
+  );
 
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
     const updateWidth = () => {
       if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
+        setContainerWidth(containerRef.current.clientWidth);
       }
     };
+
     updateWidth();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        updateWidth();
+      });
+      ro.observe(el);
+    }
     window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', updateWidth);
+    };
   }, []);
 
-  // Card dimensions: increased by 10%
+  // Keep index centered when count changes
+  useEffect(() => {
+    setIsTransitionEnabled(false);
+    setDisplayIndex(count > 1 ? count * 2 : 0);
+  }, [count]);
+
+  // Re-enable CSS transition smoothly after mount or silent loop reset
+  useEffect(() => {
+    if (!isTransitionEnabled) {
+      let raf2 = 0;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          setIsTransitionEnabled(true);
+        });
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
+    }
+  }, [isTransitionEnabled]);
+
+  // Fallback normalization if transitionend is skipped on mobile
+  useEffect(() => {
+    if (count <= 1) return;
+    if (displayIndex < baseIndex || displayIndex >= baseIndex + count) {
+      const timer = setTimeout(() => {
+        const normalized = baseIndex + (((displayIndex % count) + count) % count);
+        setIsTransitionEnabled(false);
+        setDisplayIndex(normalized);
+      }, 450);
+      return () => clearTimeout(timer);
+    }
+  }, [displayIndex, baseIndex, count]);
+
+  // Card dimensions
   const isMobile = containerWidth < 640;
   const cardWidth = isMobile ? 238 : 265;
   const gap = isMobile ? 14 : 18;
 
-  // Navigation handlers
+  // Navigation handlers: continue smoothly in the same direction
   const handlePrev = () => {
-    setDisplayIndex((prev) => {
-      const next = prev - 1;
-      return next < count ? next + count : next;
-    });
+    if (count <= 1) return;
+    setIsTransitionEnabled(true);
+    setDisplayIndex((prev) => (prev <= 1 ? baseIndex + count - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setDisplayIndex((prev) => {
-      const next = prev + 1;
-      return next >= count * 2 ? next - count : next;
-    });
+    if (count <= 1) return;
+    setIsTransitionEnabled(true);
+    setDisplayIndex((prev) => (prev >= displayDishes.length - 2 ? baseIndex : prev + 1));
+  };
+
+  // Silently snap back to the center set after an outer-copy transition finishes
+  const handleTrackTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target !== trackRef.current || e.propertyName !== 'transform') return;
+    if (count <= 1) return;
+    if (displayIndex < baseIndex || displayIndex >= baseIndex + count) {
+      const normalized = baseIndex + (((displayIndex % count) + count) % count);
+      setIsTransitionEnabled(false);
+      setDisplayIndex(normalized);
+    }
   };
 
   // Drag & Swipe support (mouse and touch)
@@ -72,30 +150,54 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
   const [dragOffset, setDragOffset] = useState(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    didDragRef.current = false;
+    touchIntentRef.current = null;
     setIsDragging(true);
     setDragStartX(e.touches[0].clientX);
+    touchStartYRef.current = e.touches[0].clientY;
     setDragOffset(0);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    const currentX = e.touches[0].clientX;
-    setDragOffset(currentX - dragStartX);
+    const dx = e.touches[0].clientX - dragStartX;
+    const dy = e.touches[0].clientY - touchStartYRef.current;
+
+    if (!touchIntentRef.current) {
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+        touchIntentRef.current = Math.abs(dx) >= Math.abs(dy) ? 'horizontal' : 'vertical';
+      } else {
+        return;
+      }
+    }
+
+    if (touchIntentRef.current === 'vertical') {
+      return;
+    }
+
+    if (Math.abs(dx) > 6) didDragRef.current = true;
+    setDragOffset(dx);
   };
 
   const handleTouchEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
+    const wasHorizontal = touchIntentRef.current === 'horizontal';
+    touchIntentRef.current = null;
+
     const threshold = 35;
-    if (dragOffset < -threshold) {
-      handleNext();
-    } else if (dragOffset > threshold) {
-      handlePrev();
+    if (wasHorizontal) {
+      if (dragOffset < -threshold) {
+        handleNext();
+      } else if (dragOffset > threshold) {
+        handlePrev();
+      }
     }
     setDragOffset(0);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    didDragRef.current = false;
     setIsDragging(true);
     setDragStartX(e.clientX);
     setDragOffset(0);
@@ -103,7 +205,9 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    setDragOffset(e.clientX - dragStartX);
+    const offset = e.clientX - dragStartX;
+    if (Math.abs(offset) > 6) didDragRef.current = true;
+    setDragOffset(offset);
   };
 
   const handleMouseUp = () => {
@@ -132,7 +236,7 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [count, displayDishes.length]);
 
   // Center active card in container
   const activeCenter = displayIndex * (cardWidth + gap) + cardWidth / 2;
@@ -179,19 +283,25 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
           {/* Carousel Track Container */}
           <div
             ref={containerRef}
-            className="w-full overflow-hidden select-none cursor-grab active:cursor-grabbing py-3"
+            className="w-full overflow-hidden select-none cursor-grab active:cursor-grabbing py-3 touch-pan-y"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
           >
           <div
+            ref={trackRef}
+            onTransitionEnd={handleTrackTransitionEnd}
             style={{
               transform: `translateX(${translateX}px)`,
-              transition: isDragging ? 'none' : 'transform 400ms cubic-bezier(0.25, 1, 0.5, 1)',
+              transition:
+                isDragging || !isTransitionEnabled
+                  ? 'none'
+                  : 'transform 400ms cubic-bezier(0.25, 1, 0.5, 1)',
               gap: `${gap}px`,
             }}
             className="flex items-center flex-nowrap"
@@ -202,14 +312,18 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
                 <div
                   key={`${dish.id}-${idx}`}
                   onClick={() => {
+                    if (didDragRef.current) return;
                     if (!isActive) {
+                      setIsTransitionEnabled(true);
                       setDisplayIndex(idx);
                     }
                   }}
                   style={{ width: `${cardWidth}px` }}
-                  className={`flex-shrink-0 transition-all duration-300 select-none ${
+                  className={`flex-shrink-0 select-none ${
+                    isTransitionEnabled ? 'transition-all duration-300' : 'transition-none'
+                  } ${
                     isActive
-                      ? 'transform scale-100 opacity-100 z-10 shadow-[0_16px_36px_rgba(0,0,0,0.65)] ring-1 ring-[#ebb340]/40 rounded-[18px]'
+                      ? 'transform scale-100 opacity-100 z-10 ring-1 ring-[#ebb340]/40 rounded-[18px]'
                       : 'transform scale-[0.92] opacity-80 hover:opacity-100 cursor-pointer'
                   }`}
                 >
@@ -217,9 +331,13 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
                     dish={dish}
                     isFavorite={favorites.includes(dish.id)}
                     onToggleFavorite={onToggleFavorite}
-                    onOpenDetails={onOpenDetails}
+                    onOpenDetails={(d) => {
+                      if (didDragRef.current) return;
+                      onOpenDetails(d);
+                    }}
                     onAddToCart={onAddToCart}
                     compact={true}
+                    noShadow={true}
                   />
                 </div>
               );
@@ -241,11 +359,19 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
       {/* Pagination Dots (Dishes count and dish names removed as requested) */}
       <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 max-w-7xl mx-auto px-4">
         {activeDishes.map((d, idx) => {
-          const isDotActive = (displayIndex % count) === idx;
+          const currentMod = count > 0 ? ((displayIndex % count) + count) % count : 0;
+          const isDotActive = currentMod === idx;
           return (
             <button
               key={d.id}
-              onClick={() => setDisplayIndex(count + idx)}
+              onClick={() => {
+                if (count <= 1) return;
+                let diff = idx - currentMod;
+                if (diff > count / 2) diff -= count;
+                if (diff < -count / 2) diff += count;
+                setIsTransitionEnabled(true);
+                setDisplayIndex((prev) => prev + diff);
+              }}
               aria-label={`View ${d.name}`}
               className={`rounded-full transition-all cursor-pointer ${
                 isDotActive

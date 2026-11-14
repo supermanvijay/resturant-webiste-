@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onOpenAdmin}
               aria-label="Open Admin Panel"
               className="p-2 text-[#ebb340]/80 hover:text-[#ebb340] hover:bg-[#0b281d] rounded-full transition cursor-pointer"
-              title="Admin Portal (Username: 123456789)"
+              title="Admin Portal"
             >
               <svg
                 viewBox="0 0 24 24"

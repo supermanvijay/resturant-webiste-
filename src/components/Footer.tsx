@@ -239,9 +239,9 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Copyright Bar */}
-        <div className="pt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
-          <p>© 2026 Royal Bites Restaurant. All Rights Reserved.</p>
-          <div className="flex items-center gap-4">
+        <div className="pt-5 flex flex-col md:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+          <p className="text-center md:text-left">© 2026 Royal Bites Restaurant. All Rights Reserved.</p>
+          <div className="hidden md:flex items-center gap-4">
             <button
               onClick={() => onShowToast('Royal Bites Privacy Policy: Your data is secure with us.')}
               className="hover:text-white transition cursor-pointer"
@@ -261,7 +261,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   onClick={onOpenAdmin}
                   className="hover:text-[#ebb340] text-gray-400 transition cursor-pointer flex items-center gap-1 group font-medium"
-                  title="Admin Management Panel (Credentials: 123456789)"
+                  title="Admin Management Panel"
                 >
                   <span className="text-[10px] group-hover:scale-110 transition-transform">👑</span>
                   <span className="group-hover:underline">Admin Portal</span>
