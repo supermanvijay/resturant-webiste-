@@ -209,7 +209,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f3] text-gray-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#faf8f3] text-gray-900 flex flex-col font-sans overflow-x-clip">
       {/* 1. Header / Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -223,7 +223,7 @@ export default function App() {
         }}
       />
 
-      <main className="flex-1">
+      <main className="flex-1 overflow-x-clip">
         {/* Hero Section */}
         <section id="home-section" className="scroll-mt-20">
           <Hero

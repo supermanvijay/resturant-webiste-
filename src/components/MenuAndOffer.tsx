@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Plus, Heart, Sparkles, ChefHat, Leaf, ArrowRight, Star } from 'lucide-react';
+import { Reveal } from './Reveal';
 import { FoodItem } from '../types';
 
 interface MenuAndOfferProps {
@@ -82,6 +83,27 @@ export const MenuAndOffer: React.FC<MenuAndOfferProps> = ({
   onAddToCart,
   onViewFullMenu,
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [mobileActiveIdx, setMobileActiveIdx] = useState(0);
+
+  const handleMobileScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const scrollCenter = el.scrollLeft + el.clientWidth / 2;
+    const cardNodes = Array.from(el.children) as HTMLElement[];
+    let closestIdx = 0;
+    let minDiff = Infinity;
+    cardNodes.forEach((child, idx) => {
+      const childCenter = child.offsetLeft + child.offsetWidth / 2;
+      const diff = Math.abs(scrollCenter - childCenter);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = idx;
+      }
+    });
+    setMobileActiveIdx(closestIdx);
+  };
+
   // Helper to convert our card definition into a full FoodItem for cart / modal operations
   const getFoodItem = (card: CuratedMenuCard): FoodItem => {
     const existing = dishes.find((d) => d.id === card.id);
@@ -124,163 +146,188 @@ export const MenuAndOffer: React.FC<MenuAndOfferProps> = ({
   return (
     <section
       id="menu-section"
-      className="scroll-mt-20 sm:scroll-mt-24 bg-[#faf8f3] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-[#ebdcc4]/60"
+      className="scroll-mt-20 sm:scroll-mt-24 bg-[#faf8f3] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-[#ebdcc4]/60 overflow-hidden"
     >
       <div className="max-w-6xl mx-auto">
         {/* Section Header: Clean, balanced, elegant */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <span className="inline-block text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase text-[#0f3d24] mb-2 sm:mb-3">
-            OUR MENU
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1a2b21] tracking-tight">
-            Taste the Extraordinary
-          </h2>
-          <div className="w-16 h-0.5 bg-[#ebb340] mx-auto my-3.5 sm:my-4 rounded-full" />
-          <p className="text-xs sm:text-base text-[#56645a] leading-relaxed">
-            Freshly prepared with artisanal ingredients, culinary passion, and timeless taste.
-          </p>
-        </div>
+        <Reveal direction="up">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <span className="inline-block text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase text-[#0f3d24] mb-2 sm:mb-3">
+              OUR MENU
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1a2b21] tracking-tight">
+              Taste the Extraordinary
+            </h2>
+            <div className="w-16 h-0.5 bg-[#ebb340] mx-auto my-3.5 sm:my-4 rounded-full" />
+            <p className="text-xs sm:text-base text-[#56645a] leading-relaxed">
+              Freshly prepared with artisanal ingredients, culinary passion, and timeless taste.
+            </p>
+          </div>
+        </Reveal>
 
-        {/* The 3 Food Cards: horizontal side scroll on mobile, clean 3-col grid on desktop */}
-        <div className="flex md:grid md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-4 pt-1 px-4 -mx-4 sm:px-6 sm:-mx-6 md:px-0 md:mx-0 snap-x snap-mandatory scroll-smooth no-scrollbar items-stretch">
-          {THREE_FEATURED_DISHES.map((card) => {
-            const foodItem = getFoodItem(card);
-            const badgeMeta = getBadgeStyle(card.badge);
-            const BadgeIcon = badgeMeta.icon;
-            const isFav = favorites.includes(card.id);
+        {/* Relative wrapper for mobile side fades */}
+        <div className="relative -mx-4 sm:-mx-6 md:mx-0">
+          {/* Mobile Left & Right Side Fade Overlays */}
+          <div className="md:hidden pointer-events-none absolute inset-y-0 left-0 w-7 bg-gradient-to-r from-[#faf8f3] via-[#faf8f3]/70 to-transparent z-20" />
+          <div className="md:hidden pointer-events-none absolute inset-y-0 right-0 w-7 bg-gradient-to-l from-[#faf8f3] via-[#faf8f3]/70 to-transparent z-20" />
 
-            return (
-              <div
-                key={card.id}
-                className="w-[82vw] max-w-[320px] sm:w-[350px] flex-shrink-0 snap-center md:w-auto md:max-w-none md:flex-shrink group bg-white rounded-2xl sm:rounded-3xl border border-[#ebe2d5] shadow-[0_8px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.09)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
-              >
-                {/* Large Realistic Food Photograph at the Top */}
+          {/* The 3 Food Cards: horizontal side scroll on mobile, clean 3-col grid on desktop */}
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleMobileScroll}
+            className="flex md:grid md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-4 pt-2 px-5 sm:px-7 md:px-0 snap-x snap-mandatory scroll-smooth no-scrollbar items-stretch"
+          >
+            {THREE_FEATURED_DISHES.map((card, idx) => {
+              const foodItem = getFoodItem(card);
+              const badgeMeta = getBadgeStyle(card.badge);
+              const BadgeIcon = badgeMeta.icon;
+              const isFav = favorites.includes(card.id);
+              const revealDirection = idx === 0 ? 'left' : idx === 2 ? 'right' : 'up';
+
+              return (
                 <div
-                  onClick={() => onOpenDetails(foodItem)}
-                  className="relative aspect-[4/3] w-full overflow-hidden bg-[#eeebe5] cursor-pointer"
+                  key={card.id}
+                  className="w-[82vw] max-w-[320px] sm:w-[350px] flex-shrink-0 snap-center md:w-auto md:max-w-none md:flex-shrink flex"
                 >
-                  <img
-                    src={card.image}
-                    alt={card.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-                    loading="lazy"
-                  />
+                  <Reveal direction={revealDirection} delay={idx * 100} className="w-full flex">
+                    <div className="w-full group bg-white rounded-2xl sm:rounded-3xl border border-[#ebe2d5] shadow-[0_8px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden">
+                      {/* Large Realistic Food Photograph at the Top */}
+                      <div
+                        onClick={() => onOpenDetails(foodItem)}
+                        className="relative aspect-[4/3] w-full overflow-hidden bg-[#eeebe5] cursor-pointer"
+                      >
+                        <img
+                          src={card.image}
+                          alt={card.name}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                          loading="lazy"
+                        />
 
-                  {/* Subtle top gradient for badge contrast */}
-                  <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none" />
+                        {/* Subtle top gradient for badge contrast */}
+                        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Small Label Badge: Popular / Chef's Pick / Vegetarian */}
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span
-                      className={`inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase px-3 py-1 rounded-full shadow-md backdrop-blur-xs ${badgeMeta.bg}`}
-                    >
-                      <BadgeIcon className="w-3 h-3" />
-                      <span>{card.badge}</span>
-                    </span>
-                  </div>
+                        {/* Small Label Badge: Popular / Chef's Pick / Vegetarian */}
+                        <div className="absolute top-3.5 left-3.5 z-10">
+                          <span
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase px-3 py-1 rounded-full shadow-md backdrop-blur-xs ${badgeMeta.bg}`}
+                          >
+                            <BadgeIcon className="w-3 h-3" />
+                            <span>{card.badge}</span>
+                          </span>
+                        </div>
 
-                  {/* Favorite Heart Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleFavorite(card.id);
-                    }}
-                    aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                    className="absolute top-3.5 right-3.5 z-10 w-8 h-8 rounded-full bg-white/85 hover:bg-white text-gray-700 hover:text-rose-500 shadow-sm flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
-                  >
-                    <Heart
-                      className={`w-4 h-4 transition-colors ${
-                        isFav
-                          ? 'fill-rose-500 text-rose-500'
-                          : 'stroke-current hover:fill-rose-100'
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* Card Body: Dish Name, Rating/Rate, Short Description, Professional Price, Add to Order Button */}
-                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    {/* Dish Name */}
-                    <h3
-                      onClick={() => onOpenDetails(foodItem)}
-                      className="font-serif font-bold text-xl sm:text-2xl text-[#1a2b21] group-hover:text-[#0f3d24] transition-colors cursor-pointer leading-snug line-clamp-1 tracking-tight"
-                    >
-                      {card.name}
-                    </h3>
-
-                    {/* Professional Rating / Rate Badge */}
-                    <div className="flex items-center gap-2 mt-2 mb-2.5">
-                      <div className="inline-flex items-center gap-1 bg-[#fdf9ef] border border-[#f1dfbe] px-2 py-0.5 rounded-full shadow-2xs">
-                        <Star className="w-3.5 h-3.5 text-[#d99b26] fill-[#d99b26]" />
-                        <span className="text-[12px] font-bold text-[#68470a] font-sans tracking-tight">
-                          {card.rating.toFixed(1)}
-                        </span>
+                        {/* Favorite Heart Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite(card.id);
+                          }}
+                          aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                          className="absolute top-3.5 right-3.5 z-10 w-8 h-8 rounded-full bg-white/85 hover:bg-white text-gray-700 hover:text-rose-500 shadow-sm flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs active:scale-90"
+                        >
+                          <Heart
+                            className={`w-4 h-4 transition-colors ${
+                              isFav
+                                ? 'fill-rose-500 text-rose-500'
+                                : 'stroke-current hover:fill-rose-100'
+                            }`}
+                          />
+                        </button>
                       </div>
-                      <span className="text-[11px] font-medium text-[#738277] tracking-tight">
-                        ({card.reviewsCount} reviews)
-                      </span>
-                    </div>
 
-                    {/* Short Description */}
-                    <p className="text-xs sm:text-sm text-[#5d6b61] leading-relaxed line-clamp-3 font-normal">
-                      {card.description}
-                    </p>
-                  </div>
+                      {/* Card Body: Dish Name, Rating/Rate, Short Description, Professional Price, Add to Order Button */}
+                      <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                          {/* Dish Name */}
+                          <h3
+                            onClick={() => onOpenDetails(foodItem)}
+                            className="font-serif font-bold text-xl sm:text-2xl text-[#1a2b21] group-hover:text-[#0f3d24] transition-colors cursor-pointer leading-snug line-clamp-1 tracking-tight"
+                          >
+                            {card.name}
+                          </h3>
 
-                  {/* Bottom Row: Professional Price & Simple "Add to Order" Button */}
-                  <div className="mt-5 pt-4 border-t border-[#f0e8dc] flex items-center justify-between gap-3">
-                    {/* Professional Price Typography */}
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-wider font-semibold text-[#809185]">
-                        Price
-                      </span>
-                      <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-sm font-semibold text-[#0f3d24]/75 font-sans">₹</span>
-                        <span className="text-2xl sm:text-[26px] font-extrabold tracking-tight text-[#0f3d24] font-sans tabular-nums">
-                          {card.numericPrice}
-                        </span>
-                        <span className="text-xs font-medium text-[#78887e] ml-0.5 tracking-tight font-sans">
-                          • {card.usdPrice}
-                        </span>
+                          {/* Professional Rating / Rate Badge */}
+                          <div className="flex items-center gap-2 mt-2 mb-2.5">
+                            <div className="inline-flex items-center gap-1 bg-[#fdf9ef] border border-[#f1dfbe] px-2 py-0.5 rounded-full shadow-2xs">
+                              <Star className="w-3.5 h-3.5 text-[#d99b26] fill-[#d99b26]" />
+                              <span className="text-[12px] font-bold text-[#68470a] font-sans tracking-tight">
+                                {card.rating.toFixed(1)}
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-medium text-[#738277] tracking-tight">
+                              ({card.reviewsCount} reviews)
+                            </span>
+                          </div>
+
+                          {/* Short Description */}
+                          <p className="text-xs sm:text-sm text-[#5d6b61] leading-relaxed line-clamp-3 font-normal">
+                            {card.description}
+                          </p>
+                        </div>
+
+                        {/* Bottom Row: Professional Price & Simple "Add to Order" Button */}
+                        <div className="mt-5 pt-4 border-t border-[#f0e8dc] flex items-center justify-between gap-3">
+                          {/* Professional Price Typography */}
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase tracking-wider font-semibold text-[#809185]">
+                              Price
+                            </span>
+                            <div className="flex items-baseline gap-1 mt-0.5">
+                              <span className="text-sm font-semibold text-[#0f3d24]/75 font-sans">₹</span>
+                              <span className="text-2xl sm:text-[26px] font-extrabold tracking-tight text-[#0f3d24] font-sans tabular-nums">
+                                {card.numericPrice}
+                              </span>
+                              <span className="text-xs font-medium text-[#78887e] ml-0.5 tracking-tight font-sans">
+                                • {card.usdPrice}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => onAddToCart(foodItem)}
+                            className="inline-flex items-center gap-1.5 bg-[#0f3d24] hover:bg-[#165633] active:scale-95 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4 stroke-[2.5]" />
+                            <span>Add to Order</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => onAddToCart(foodItem)}
-                      className="inline-flex items-center gap-1.5 bg-[#0f3d24] hover:bg-[#165633] active:scale-95 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4 stroke-[2.5]" />
-                      <span>Add to Order</span>
-                    </button>
-                  </div>
+                  </Reveal>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        {/* Mobile Swipe Cue (visible only on mobile) */}
-        <div className="md:hidden flex items-center justify-center gap-2 mt-4 text-[#728275]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#0f3d24]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-[#d5cbbe]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-[#d5cbbe]" />
+        {/* Mobile Swipe Cue with live active dot */}
+        <div className="md:hidden flex items-center justify-center gap-1.5 mt-4 text-[#728275]">
+          {THREE_FEATURED_DISHES.map((d, idx) => (
+            <span
+              key={d.id}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                mobileActiveIdx === idx ? 'w-5 bg-[#0f3d24]' : 'w-1.5 bg-[#d5cbbe]'
+              }`}
+            />
+          ))}
           <span className="ml-1.5 text-[11px] font-medium tracking-wide">Swipe to view more dishes →</span>
         </div>
 
         {/* View Full Menu link at the bottom of the section */}
-        <div className="mt-12 text-center">
-          <button
-            type="button"
-            onClick={onViewFullMenu}
-            className="inline-flex items-center gap-2 bg-[#f0ebe0] hover:bg-[#0f3d24] text-[#1a2b21] hover:text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-full transition-all duration-200 cursor-pointer shadow-xs"
-          >
-            <span>Explore Complete Restaurant Menu</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
+        <Reveal direction="up" delay={150}>
+          <div className="mt-10 sm:mt-12 text-center">
+            <button
+              type="button"
+              onClick={onViewFullMenu}
+              className="inline-flex items-center gap-2 bg-[#f0ebe0] hover:bg-[#0f3d24] text-[#1a2b21] hover:text-white font-medium text-xs sm:text-sm px-6 py-3 rounded-full transition-all duration-200 cursor-pointer shadow-xs active:scale-95"
+            >
+              <span>Explore Complete Restaurant Menu</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { FoodCard } from './FoodCard';
+import { Reveal } from './Reveal';
 import { FoodItem } from '../types';
 
 interface FeaturedDishesProps {
@@ -137,50 +138,56 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
   const activeCenter = displayIndex * (cardWidth + gap) + cardWidth / 2;
   const translateX = (containerWidth / 2) - activeCenter + dragOffset;
 
-  const currentDish = activeDishes[displayIndex % count] || activeDishes[0];
-
   return (
-    <section className="bg-[#faf8f3] py-14 border-b border-[#ebdcc4]/60 overflow-hidden relative">
+    <section className="bg-[#faf8f3] py-12 sm:py-14 border-b border-[#ebdcc4]/60 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header with 20% larger heading */}
-        <div className="text-center mb-8 sm:mb-12 px-2">
-          <div className="flex items-center justify-center gap-3 sm:gap-5 mb-2 max-w-full">
-            <span className="h-[1.5px] w-8 sm:w-20 md:w-28 bg-[#ebb340] shrink-0" />
-            <h2 className="text-xl min-[360px]:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#1b2b23] whitespace-nowrap tracking-tight sm:tracking-normal">
-              Our <span className="text-[#0e5836]">Featured Dishes</span>
-            </h2>
-            <span className="h-[1.5px] w-8 sm:w-20 md:w-28 bg-[#ebb340] shrink-0" />
+        {/* Section Header */}
+        <Reveal direction="up">
+          <div className="text-center mb-8 sm:mb-12 px-2">
+            <div className="flex items-center justify-center gap-3 sm:gap-5 mb-2 max-w-full">
+              <span className="h-[1.5px] w-8 sm:w-20 md:w-28 bg-[#ebb340] shrink-0" />
+              <h2 className="text-xl min-[360px]:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#1b2b23] whitespace-nowrap tracking-tight sm:tracking-normal">
+                Our <span className="text-[#0e5836]">Featured Dishes</span>
+              </h2>
+              <span className="h-[1.5px] w-8 sm:w-20 md:w-28 bg-[#ebb340] shrink-0" />
+            </div>
+            {/* Subtitle with & symbol */}
+            <p className="text-sm sm:text-base text-gray-600 font-normal">
+              A perfect blend of tradition &amp; taste
+            </p>
           </div>
-          {/* Subtitle with & symbol */}
-          <p className="text-sm sm:text-base text-gray-600 font-normal">
-            A perfect blend of tradition &amp; taste
-          </p>
-        </div>
+        </Reveal>
       </div>
 
-      {/* Full-width Carousel Attached to Corners without white covers */}
-      <div className="relative w-full overflow-hidden py-3">
-        {/* Left Arrow Button Attached to the Left Corner */}
-        <button
-          onClick={handlePrev}
-          aria-label="Previous featured dish"
-          className="absolute left-2 sm:left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#0d0d0f]/90 hover:bg-[#0e5836] text-[#e5be82] hover:text-white border border-[#ebb340]/80 shadow-[0_4px_18px_rgba(0,0,0,0.4)] flex items-center justify-center transition-all cursor-pointer active:scale-90 backdrop-blur-xs"
-        >
-          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
-        </button>
+      {/* Full-width Carousel with Smooth Luxury Side Fades */}
+      <Reveal direction="scale" delay={120}>
+        <div className="relative w-full overflow-hidden py-3">
+          {/* Left Side Fade Gradient */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-24 md:w-36 bg-gradient-to-r from-[#faf8f3] via-[#faf8f3]/75 to-transparent z-20" />
+          {/* Right Side Fade Gradient */}
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-24 md:w-36 bg-gradient-to-l from-[#faf8f3] via-[#faf8f3]/75 to-transparent z-20" />
 
-        {/* Carousel Track Container (Attached to Corners, White Covers Removed) */}
-        <div
-          ref={containerRef}
-          className="w-full overflow-hidden select-none cursor-grab active:cursor-grabbing py-3"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-        >
+          {/* Left Arrow Button Attached to the Left Corner */}
+          <button
+            onClick={handlePrev}
+            aria-label="Previous featured dish"
+            className="absolute left-2 sm:left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#0d0d0f]/90 hover:bg-[#0e5836] text-[#e5be82] hover:text-white border border-[#ebb340]/80 shadow-[0_4px_18px_rgba(0,0,0,0.4)] flex items-center justify-center transition-all cursor-pointer active:scale-90 backdrop-blur-xs"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+          </button>
+
+          {/* Carousel Track Container */}
+          <div
+            ref={containerRef}
+            className="w-full overflow-hidden select-none cursor-grab active:cursor-grabbing py-3"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+          >
           <div
             style={{
               transform: `translateX(${translateX}px)`,
@@ -228,7 +235,8 @@ export const FeaturedDishes: React.FC<FeaturedDishesProps> = ({
         >
           <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
         </button>
-      </div>
+        </div>
+      </Reveal>
 
       {/* Pagination Dots (Dishes count and dish names removed as requested) */}
       <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 max-w-7xl mx-auto px-4">

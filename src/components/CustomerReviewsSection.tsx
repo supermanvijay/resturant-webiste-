@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Reveal } from './Reveal';
 import { Review } from '../types';
 
 interface CustomerReviewsSectionProps {
@@ -51,18 +52,16 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({ 
 
   const renderReviewCard = (rev: Review, isMobileSingle: boolean = false) => (
     <div
-      key={rev.id}
-      className={`bg-white rounded-2xl border border-[#ede5d6] shadow-xs hover:shadow-md transition-all duration-300 text-center flex flex-col items-center justify-between ${
+      key={`${reviewIndex}-${rev.id}`}
+      className={`bg-white rounded-2xl border border-[#ede5d6] shadow-xs hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center flex flex-col items-center justify-between animate-fadeIn ${
         isMobileSingle
-          ? 'w-[230px] min-h-[220px] p-5 mx-auto'
+          ? 'w-full max-w-[260px] min-h-[220px] p-5 mx-auto'
           : 'w-full min-h-[200px] p-4 sm:p-5'
       }`}
     >
       {/* Avatar with circular frame */}
       <div
-        className={`${
-          isMobileSingle ? 'w-14 h-14' : 'w-14 h-14'
-        } rounded-full p-[1.5px] border border-gray-200 mb-2 overflow-hidden bg-gray-100 flex-shrink-0 shadow-xs`}
+        className="w-14 h-14 rounded-full p-[1.5px] border border-gray-200 mb-2 overflow-hidden bg-gray-100 flex-shrink-0 shadow-xs"
       >
         <img
           src={rev.avatar}
@@ -87,9 +86,7 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({ 
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
-            className={`${
-              isMobileSingle ? 'w-3.5 h-3.5' : 'w-3.5 h-3.5'
-            } fill-[#ebb340] text-[#ebb340]`}
+            className="w-3.5 h-3.5 fill-[#ebb340] text-[#ebb340]"
           />
         ))}
       </div>
@@ -106,80 +103,84 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({ 
   );
 
   return (
-    <section id="reviews-section" className="scroll-mt-20 sm:scroll-mt-24 bg-[#faf8f3] py-12 sm:py-16 px-4 sm:px-6 lg:px-8 border-b border-[#ebdcc4]/60">
+    <section id="reviews-section" className="scroll-mt-20 sm:scroll-mt-24 bg-[#faf8f3] py-12 sm:py-16 px-4 sm:px-6 lg:px-8 border-b border-[#ebdcc4]/60 overflow-hidden">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-1">
-            <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
-            <h3 className="text-[24px] sm:text-[30px] font-serif font-bold text-[#b8860b] whitespace-nowrap">
-              Customer Reviews
-            </h3>
-            <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
+        <Reveal direction="up">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-1">
+              <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
+              <h3 className="text-[24px] sm:text-[30px] font-serif font-bold text-[#b8860b] whitespace-nowrap">
+                Customer Reviews
+              </h3>
+              <span className="h-[1px] w-8 sm:w-16 bg-[#ebb340]" />
+            </div>
+            <p className="text-xs sm:text-sm text-gray-600 font-normal">
+              What our cherished guests say about their experience
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-gray-600 font-normal">
-            What our cherished guests say about their experience
-          </p>
-        </div>
+        </Reveal>
 
         {/* MOBILE VIEW: Exactly ONE Review Card matching desktop card size */}
-        <div className="block sm:hidden">
-          <div className="relative flex items-center justify-center gap-3">
-            {/* Left Arrow Button */}
+        <Reveal direction="scale" delay={100}>
+          <div className="block sm:hidden">
+            <div className="relative flex items-center justify-center gap-2.5">
+              {/* Left Arrow Button */}
+              <button
+                onClick={prevReview}
+                aria-label="Previous review"
+                className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Single card with touch swipe */}
+              <div
+                className="flex-1 flex justify-center touch-pan-y"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
+                {activeMobileReview && renderReviewCard(activeMobileReview, true)}
+              </div>
+
+              {/* Right Arrow Button */}
+              <button
+                onClick={nextReview}
+                aria-label="Next review"
+                className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* DESKTOP VIEW: 3 Review Cards in Row */}
+          <div className="hidden sm:flex items-center justify-center gap-4">
+            {/* Left Arrow */}
             <button
               onClick={prevReview}
               aria-label="Previous review"
-              className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+              className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-xs hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            {/* Single desktop-sized card with touch swipe */}
-            <div
-              className="flex-1 flex justify-center touch-pan-y"
-              onTouchStart={onTouchStart}
-              onTouchMove={onTouchMove}
-              onTouchEnd={onTouchEnd}
-            >
-              {activeMobileReview && renderReviewCard(activeMobileReview, true)}
+            {/* 3 Review Cards in Row */}
+            <div className="grid grid-cols-3 gap-4 sm:gap-5 flex-1">
+              {desktopReviews.map((rev) => renderReviewCard(rev, false))}
             </div>
 
-            {/* Right Arrow Button */}
+            {/* Right Arrow */}
             <button
               onClick={nextReview}
               aria-label="Next review"
-              className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
+              className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-xs hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-        </div>
-
-        {/* DESKTOP VIEW: 3 Review Cards in Row */}
-        <div className="hidden sm:flex items-center justify-center gap-4">
-          {/* Left Arrow */}
-          <button
-            onClick={prevReview}
-            aria-label="Previous review"
-            className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-xs hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          {/* 3 Review Cards in Row */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-5 flex-1">
-            {desktopReviews.map((rev) => renderReviewCard(rev, false))}
-          </div>
-
-          {/* Right Arrow */}
-          <button
-            onClick={nextReview}
-            aria-label="Next review"
-            className="w-9 h-9 rounded-full bg-white border border-gray-300 shadow-xs hover:bg-gray-100 flex items-center justify-center text-gray-700 flex-shrink-0 cursor-pointer active:scale-95 transition-transform"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        </Reveal>
 
         {/* Slider Dots */}
         <div className="flex items-center justify-center gap-2 mt-6">
